@@ -52,7 +52,7 @@ while (time< 360){
     const fishes = ["Bass", "bigmouth buffalo", "bowfin", "burbot", "catfish", "herring", "walleye", "lake sturgeon", "nothern pike", "salmon", "trout", "sunfish"];
     let weight =(Math.round(randomNumber(0,5)*100)/100)
     let fishCaught =`${fishSizeChecker(weight)} ${(fishes[Math.ceil(randomNumber(0,fishes.length-1))])}`
-    let price =(Math.round((weight*10)*100)/100)
+    let price =(Math.round((weight*11.99)*100)/100)
     time += (Math.ceil(randomNumber(15,90)))
     console.log(`${weight}lbs ${fishCaught} worth $${price.toFixed(2)}`)
     console.log("Your action: [c]atch or [r]elease?")
@@ -65,16 +65,17 @@ while (time< 360){
         console.log("This fish would put you over 10 lbs, so you release it.")
     }
     else{
+            // Selection validator
+            while(input !== "c" && input !=="r"){
+                console.log("Please select a valid option.")
+                input = prompt(">")
+            }
             if(input === "c"){
             console.log("You chose to catch the fish.")
             addFish(weight,fishCaught,price)
             }
             else if(input ==="r"){
                 console.log("You chose to release the fish.")
-            }
-            else{
-                console.log("Please select a valid option.")
-                input = prompt(">")
             }
         }
     console.log("")
@@ -85,5 +86,6 @@ console.log(`You caught ${fishing.fishes.length} fish:`)
 for(const fish of fishing.fishes){
     console.log(`* ${fish.name}, ${fish.weight} lbs, $${fish.value}`)
 }
+console.log("")
 console.log(`Total weight: ${fishing.weight} lbs`)
-console.log(`Total value: $${fishing.value}`)
+console.log(`Total value: $${fishing.value.toFixed(2)}`)
