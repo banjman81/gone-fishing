@@ -80,7 +80,7 @@ while (time< 360){
     console.log("")
 }
 console.log("The time is 12:00pm. Times up!")
-console.log('')
+console.log("")
 console.log(`You caught ${fishing.fishes.length} fish:`)
 for(const fish of fishing.fishes){
     console.log(`* ${fish.name}, ${fish.weight} lbs, $${fish.value}`)
