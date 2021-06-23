@@ -13,6 +13,7 @@ let fishesCaught = []
 let fishing ={
     weight : 0,
     value: 0,
+    treasure: 0,
     fishes : fishesCaught
 }
 
@@ -57,13 +58,26 @@ function timeStamp(time){
     let formattedMin = ("0" + minutes).slice(-2)
     return `${formattedHr}:${formattedMin}am`
 }
+function selectionValidator(input, a, b){
+    if(input === a){
+        return "add"
+    }
+    else if(input === b){
+        return "deny"
+    }
+    else{
+        console.log(chalk.redBright("Please select a valid option."))
+        i = prompt(">")
+        return selectionValidator(i,a,b)
+    }
+}
 let timesUp = ""
 
 
 while (time< 360){
     time += (Math.ceil(randomNumber(15,90)))
     if(time > 360){
-        timesUp = "You ran out of time before you can catch another fish."
+        timesUp = "Your ran out of time before you can catch another fish."
         break
     }
     console.log(`The time is ${chalk.greenBright(timeStamp(time))}. So far you've caught:`)
@@ -74,11 +88,31 @@ while (time< 360){
         break
     }
     // catching fish
-    const fishes = ["Bass", "bigmouth buffalo", "bowfin", "burbot", "catfish", "herring", "walleye", "lake sturgeon", "nothern pike", "salmon", "trout", "sunfish"];
+    const fishes = ["Bass", "bowfin", "Golden dubloon", "catfish", "Valueless Boot", "walleye", "lake sturgeon", "nothern pike", "salmon", "trout"];
     let weight =(Math.round(randomNumber(0,5)*100)/100)
-    let fishCaught =`${fishSizeChecker(weight)} ${(fishes[Math.ceil(randomNumber(0,fishes.length-1))])}`
-
-    // I had the price of the fishes scale off weight instead of randomizing it
+    let result = `${(fishes[Math.ceil(randomNumber(0,fishes.length-1))])}`
+    let fishCaught =`${fishSizeChecker(weight)} ${result}`
+    if(result === "Valueless Boot"){
+        console.log(`Bummer, You got a ${chalk.magenta(result)} instead of a fish.`)
+        console.log("Your action: Please press [c] or [r] to continue fishing.")
+        const confirm = prompt(">")
+        selectionValidator(confirm , "c","r");
+    }
+    else if(result === "Golden dubloon"){
+        console.log(chalk.whiteBright.bgGray(`LUCKY!!! You got a high-value ${chalk.yellowBright(result)} valued at`, chalk.greenBright("$500"),"."))
+        console.log("Your action: [k]eep or [t]hrow away?")
+        const confirm = prompt(">")
+        const valid = selectionValidator(confirm, "k", "t");
+        if(valid == "add"){
+            console.log(chalk.bgGray("You chose to keep the dubloon."))
+            fishing.value += 500;
+            fishing.treasure +=1;
+        }
+        else if(valid == "deny"){
+            console.log(chalk.bgGray("You chose to toss the dubloon."))
+        }
+    }
+    else{// I had the price of the fishes scale off weight instead of randomizing it
     // let price =(Math.round((Math.random()*100)*100)/100)
     let price =(Math.round((weight*11.99)*100)/100)
 
@@ -95,18 +129,15 @@ while (time< 360){
     }
     else{
             // Selection validator
-            while(input !== "c" && input !=="r"){
-                console.log(chalk.redBright("Please select a valid option."))
-                input = prompt(">")
+            const valid = selectionValidator(input, "c", "r");
+            if(valid == "add"){
+                console.log(chalk.bgGray("You chose to catch the fish."))
+                addFish(weight,fishCaught,price)
             }
-            if(input === "c"){
-            console.log(chalk.bgGray("You chose to catch the fish."))
-            addFish(weight,fishCaught,price)
-            }
-            else if(input ==="r"){
+            else if(valid == "deny"){
                 console.log(chalk.bgGray("You chose to release the fish."))
             }
-        }
+        }}
     console.log("")
     console.log("=================================================")
     console.log("")
@@ -121,5 +152,9 @@ for(const fish of fishing.fishes){
     console.log(`* ${chalk.yellow(fish.name)},`, chalk.cyan(`${fish.weight} lbs,`), chalk.green(`$${fish.value}`))
 }
 console.log("")
+if(fishing.treasure >0){
+    console.log(chalk.yellowBright(`You also found ${fishing.treasure} valuable item(s).`))
+    console.log("")
+}
 console.log(`Total weight:`, chalk.cyanBright(`${fishing.weight.toFixed(2)} lbs`))
 console.log(`Total value:`, chalk.greenBright(`$${fishing.value.toFixed(2)}`))
