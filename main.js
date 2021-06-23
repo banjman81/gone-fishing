@@ -2,7 +2,7 @@ const chalk = require('chalk')
 const prompt = require('prompt-sync')({sigint:true});
 
 console.log("")
-console.log(chalk.bgBlue("You've gone fishing! Try to maximize the value of your caught fish. You can fish for six hours (till 12:00pm) and can catch at most 10 lbs of fish."))
+console.log(chalk.blue("You've gone fishing! Try to maximize the value of your caught fish. You can fish for six hours (till 12:00pm) and can catch at most 10 lbs of fish."))
 console.log("")
 console.log("=================================================")
 console.log("")
@@ -17,6 +17,11 @@ let fishing ={
     fishes : fishesCaught
 }
 
+// condition values
+let timesUp = ""
+let min = 15
+let max = 90
+let chumWater = false
 let time = 0
 
 function randomNumber(min, max){
@@ -71,19 +76,38 @@ function selectionValidator(input, a, b){
         return selectionValidator(i,a,b)
     }
 }
-let timesUp = ""
-
 
 while (time< 360){
-    time += (Math.ceil(randomNumber(15,90)))
+    // Calculate the time it takes to get a fish
+    time += (Math.ceil(randomNumber(min,max)))
     if(time > 360){
         timesUp = "Your ran out of time before you can catch another fish."
         break
     }
+    if(chumWater === false){
+        console.log('Would you like to chum the water to catch two times faster? [yes] or [no]')
+        const chum = prompt(">").toLowerCase()
+        const validate = selectionValidator(chum, "yes", "no")
+            if(validate === "add"){
+                min = 10;
+                max = 60;
+                time += 30;
+                chumWater = true;
+                console.log("")
+                console.log("You chose to chum the water.")
+                console.log("")
+            }
+            else if(validate === "deny"){
+                console.log("")
+                console.log("You chose not to chum the water.")
+                console.log("")
+            }
+        }
+    // Catch information
     console.log(`The time is ${chalk.greenBright(timeStamp(time))}. So far you've caught:`)
     console.log(chalk.yellow(` ${fishing.fishes.length} fish(s),`), chalk.cyan(`${fishing.weight.toFixed(2)} lbs,`), chalk.green(`$${fishing.value.toFixed(2)}`))
     console.log("")
-    // weight checker
+    // weight checker.
     if(fishing.weight >10){
         break
     }
@@ -94,14 +118,14 @@ while (time< 360){
     let fishCaught =`${fishSizeChecker(weight)} ${result}`
     if(result === "Valueless Boot"){
         console.log(`Bummer, You got a ${chalk.magenta(result)} instead of a fish.`)
-        console.log("Your action: Please press [c] or [r] to continue fishing.")
-        const confirm = prompt(">")
-        selectionValidator(confirm , "c","r");
+        console.log("Your action: Please enter [c] to continue fishing.")
+        const confirm = prompt(">").toLowerCase()
+        selectionValidator(confirm , "c","c");
     }
     else if(result === "Golden dubloon"){
         console.log(chalk.whiteBright.bgGray(`LUCKY!!! You got a high-value ${chalk.yellowBright(result)} valued at`, chalk.greenBright("$500"),"."))
         console.log("Your action: [k]eep or [t]hrow away?")
-        const confirm = prompt(">")
+        const confirm = prompt(">").toLowerCase()
         const valid = selectionValidator(confirm, "k", "t");
         if(valid == "add"){
             console.log(chalk.bgGray("You chose to keep the dubloon."))
@@ -112,20 +136,46 @@ while (time< 360){
             console.log(chalk.bgGray("You chose to toss the dubloon."))
         }
     }
-    else{// I had the price of the fishes scale off weight instead of randomizing it
+    else{// price of the fishes scale with weight instead of randomizing it
     // let price =(Math.round((Math.random()*100)*100)/100)
     let price =(Math.round((weight*11.99)*100)/100)
 
     console.log(`You caught a '${chalk.yellowBright(fishCaught)}' weighing`, chalk.cyanBright(`${weight} lbs`), `and valued at`, chalk.green(`$${price.toFixed(2)}`))
 
     console.log("Your action: [c]atch or [r]elease?")
-    let input = prompt('>')
+    let input = prompt('>').toLowerCase()
     console.log("")
     const totalWeight = fishing.weight + weight
 
-    // Validate max weight
+    // Validate max weight. edit array of caught fishes
     if(totalWeight > 10){
-        console.log("This fish would put you over 10 lbs, so you release it.")
+        console.log("This fish would put you over 10 lbs. Would you like to release some of the fishes to make more room?")
+        console.log('[yes] or [no]')
+        const enter = prompt(">").toLowerCase()
+        const validate = selectionValidator(enter, "yes", "no")
+            if(validate === "add"){
+                let counter = 1;
+                console.log("")
+                console.log("Choose a fish that you would like to release.")
+                for(const fish of fishing.fishes){
+                    console.log(`${counter}, ${chalk.yellow(fish.name)},`, chalk.cyan(`${fish.weight} lbs,`), chalk.green(`$${fish.value}`))
+                    counter++
+                }
+                let select = Number(prompt(">"))
+                while(isNaN(select) || select > fishing.fishes.length || select === 0){
+                    console.log(chalk.redBright("Please select a valid option."))
+                    select = Number(prompt(">"))
+                }
+                console.log("")
+                console.log(`'${chalk.yellowBright(fishing.fishes[select-1].name)}' was released back into the water.`)
+                console.log(`'${chalk.yellowBright(fishCaught)}' was caught.`)
+                fishing.fishes.splice(select-1,1)
+                addFish(weight,fishCaught,price)
+            }
+            else if(validate === "deny"){
+                console.log("")
+                console.log(`'${chalk.yellowBright(fishCaught)}' was released back into the water.`)
+            }
     }
     else{
             // Selection validator
@@ -153,7 +203,7 @@ for(const fish of fishing.fishes){
 }
 console.log("")
 if(fishing.treasure >0){
-    console.log(chalk.yellowBright(`You also found ${fishing.treasure} valuable item(s).`))
+    console.log(chalk.yellowBright(`You also found ${fishing.treasure} valuable item(s).`, chalk.green(`$${fishing.treasure*500}`)))
     console.log("")
 }
 console.log(`Total weight:`, chalk.cyanBright(`${fishing.weight.toFixed(2)} lbs`))
