@@ -76,6 +76,31 @@ function selectionValidator(input, a, b){
         return selectionValidator(i,a,b)
     }
 }
+function weightChecker(w1, w2){
+    let weight1 = fishing.weight -w1
+    let weight2 = weight1 + w2
+    if(weight2 >10){
+        return false
+    }
+    else{
+        return true
+    }
+}
+function validOption(w1,w2){
+    let counter = 0
+    for(let fish of fishing.fishes){
+        let temp = fishing.weight - fish.weight
+        if(temp <=10){
+            counter++
+        }
+    }
+    if(counter > 0){
+        return true
+    }
+    else{
+        return false
+    }
+}
 
 while (time< 360){
     // Calculate the time it takes to get a fish
@@ -124,9 +149,8 @@ while (time< 360){
                     {name:"Valueless boot", price:0}];
 
     let weight =(Math.round(randomNumber(0,5)*100)/100)
-    let fishIndex = Math.ceil(randomNumber(0,fishes.length-1))
+    let fishIndex = Math.ceil(randomNumber(0.1,fishes.length-1))
     let result = `${(fishes[fishIndex].name)}`
-    console.log(`.${result}.`, "---------------------------")
     let fishValue = fishes[fishIndex].price
     let fishCaught =`${fishSizeChecker(weight)} ${result}`
     if(fishValue == 0){
@@ -134,6 +158,7 @@ while (time< 360){
         console.log("Your action: Please enter [c] to continue fishing.")
         const confirm = prompt(">").toLowerCase()
         selectionValidator(confirm , "c","c");
+        continue
     }
     else if(result === "Golden dubloon"){
         console.log(chalk.whiteBright.bgGray(`LUCKY!!! You got a high-value ${chalk.yellowBright(result)} valued at`, chalk.greenBright("$500"),"."))
@@ -158,41 +183,53 @@ while (time< 360){
     console.log("Your action: [c]atch or [r]elease?")
     let input = prompt('>').toLowerCase()
     console.log("")
-    const totalWeight = fishing.weight + weight
-
-    // Validate max weight. edit array of caught fishes
+    let totalWeight = fishing.weight + weight
     if(totalWeight > 10){
-        console.log("This fish would put you over 10 lbs. Would you like to release some of the fishes to make more room?")
-        console.log('[yes] or [no]')
-        const enter = prompt(">").toLowerCase()
-        const validate = selectionValidator(enter, "yes", "no")
-            if(validate === "add"){
-                let counter = 1;
-                console.log("")
-                console.log("Choose a fish that you would like to release.")
-                for(const fish of fishing.fishes){
-                    console.log(`${counter}, ${chalk.yellow(fish.name)},`, chalk.cyan(`${fish.weight} lbs,`), chalk.green(`$${fish.value}`))
-                    counter++
-                }
-                let select = Number(prompt(">"))
-                while(isNaN(select) || select > fishing.fishes.length || select === 0){
-                    console.log(chalk.redBright("Please select a valid option."))
-                    select = Number(prompt(">"))
-                }
-                console.log("")
-                console.log(`'${chalk.yellowBright(fishing.fishes[select-1].name)}' was released back into the water.`)
-                console.log(`'${chalk.yellowBright(fishCaught)}' was caught.`)
-                fishing.fishes.splice(select-1,1)
-                addFish(weight,fishCaught,price)
-            }
-            else if(validate === "deny"){
-                console.log("")
-                console.log(`'${chalk.yellowBright(fishCaught)}' was released back into the water.`)
-            }
+        console.log('This fish would put you over 10 lbs, so you release it.')
+        // console.log("This fish would put you over 10 lbs. Would you like to release some of the fishes to make more room?")
+        // console.log('[yes] or [no]')
+        // const enter = prompt(">").toLowerCase()
+        // const validate = selectionValidator(enter, "yes", "no")
+        //     if(validate === "add"){
+        //         let counter = 1;
+        //         console.log("")
+        //         console.log("Choose a fish that you would like to release.")
+        //         for(const fish of fishing.fishes){
+        //             console.log(`${counter}, ${chalk.yellow(fish.name)},`, chalk.cyan(`${fish.weight} lbs,`), chalk.green(`$${fish.value}`))
+        //             counter++
+        //         }
+        //         let select = Number(prompt(">"))
+        //         while(isNaN(select) || select > fishing.fishes.length || select === 0){
+        //             console.log(chalk.redBright("Please select a valid option."))
+        //             select = Number(prompt(">"))
+        //         }
+        //         console.log(weightChecker(fishing.fishes[select-1].weight,weight))
+        //         while(weightChecker(fishing.fishes[select-1].weight,weight) == false){
+        //             console.log(validOption(fishing.fishes[select-1].weight,weight),"000000000000000000000")
+        //             if(validOption(fishing.fishes[select-1].weight,weight) == false){
+        //                 console.log("No more room, yout have to release the fish.")
+        //             }
+        //             else{
+        //                 console.log("This will still put you over 10 lbs.")
+        //                 console.log(chalk.redBright("Please select a valid option."))
+        //                 select = Number(prompt(">"))
+        //             }
+        //         }
+        //         console.log("")
+        //         console.log(`'${chalk.yellowBright(fishing.fishes[select-1].name)}' was released back into the water.`)
+        //         console.log(`'${chalk.yellowBright(fishCaught)}' was caught.`)
+        //         fishing.fishes.splice(select-1,1)
+        //         addFish(weight,fishCaught,price)
+        //         continue
+        //     }
+        //     else if(validate === "deny"){
+        //         console.log("")
+        //         console.log(`'${chalk.yellowBright(fishCaught)}' was released back into the water.`)
+        //     }
     }
-    else{
-            // Selection validator
-            const valid = selectionValidator(input, "c", "r");
+    // Validate max weight. edit array of caught fishes
+    else{   
+        const valid = selectionValidator(input, "c", "r");
             if(valid == "add"){
                 console.log(chalk.bgGray("You chose to catch the fish."))
                 addFish(weight,fishCaught,price)
@@ -200,12 +237,13 @@ while (time< 360){
             else if(valid == "deny"){
                 console.log(chalk.bgGray("You chose to release the fish."))
             }
-        }}
-    console.log("")
-    console.log("=================================================")
-    console.log("")
+        }
+        console.log("")
+        console.log("=================================================")
+        console.log("")
+    }
 }
-console.log("The time is", chalk.red("12:00pm."), "Times up!")
+console.log("The time is", chalk.red("12:00pm"), "Times up!")
 if(timesUp.length>0){
     console.log(timesUp)
 }
