@@ -112,11 +112,24 @@ while (time< 360){
         break
     }
     // catching fish
-    const fishes = ["Bass", "bowfin", "Golden dubloon", "catfish", "Valueless Boot", "walleye", "lake sturgeon", "nothern pike", "salmon", "trout"];
+    const fishes = [{name:"Bass", price : 3},
+                    {name:"bowfin", price : 1.5},
+                    {name:"catfish", price : 1},
+                    {name:"walleye", price : 2},
+                    {name:"lake sturgeon", price : 12},
+                    {name:"northern pike", price : 3},
+                    {name:"salmon", price : 8},
+                    {name:"trout", price : 7},
+                    {name:"Golden dubloon", price : 500},
+                    {name:"Valueless boot", price:0}];
+
     let weight =(Math.round(randomNumber(0,5)*100)/100)
-    let result = `${(fishes[Math.ceil(randomNumber(0,fishes.length-1))])}`
+    let fishIndex = Math.ceil(randomNumber(0,fishes.length-1))
+    let result = `${(fishes[fishIndex].name)}`
+    console.log(`.${result}.`, "---------------------------")
+    let fishValue = fishes[fishIndex].price
     let fishCaught =`${fishSizeChecker(weight)} ${result}`
-    if(result === "Valueless Boot"){
+    if(fishValue == 0){
         console.log(`Bummer, You got a ${chalk.magenta(result)} instead of a fish.`)
         console.log("Your action: Please enter [c] to continue fishing.")
         const confirm = prompt(">").toLowerCase()
@@ -138,7 +151,7 @@ while (time< 360){
     }
     else{// price of the fishes scale with weight instead of randomizing it
     // let price =(Math.round((Math.random()*100)*100)/100)
-    let price =(Math.round((weight*11.99)*100)/100)
+    let price =(Math.round((weight*fishValue)*100)/100)
 
     console.log(`You caught a '${chalk.yellowBright(fishCaught)}' weighing`, chalk.cyanBright(`${weight} lbs`), `and valued at`, chalk.green(`$${price.toFixed(2)}`))
 
